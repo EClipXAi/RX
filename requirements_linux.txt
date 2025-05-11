@@ -4,6 +4,7 @@
 accelerate==0.33.0
 aiofiles==23.2.1
 altair==4.2.2
+triton
 bitsandbytes==0.44.0
 dadaptation==3.2
 diffusers[torch]==0.32.2
