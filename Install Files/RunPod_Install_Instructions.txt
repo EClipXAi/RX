@@ -1,0 +1,49 @@
+chmod +x Part1.sh
+./Part1.sh
+
+Wait until you see local URL like Running on local URL:  http://127.0.0.1:7860
+
+
+
+Replace Files before running Part2.sh
+
+========================================================================================================================================================================
+
+Open a new terminal to update new dependencies and torch libraries
+
+chmod +x Part2.sh
+./Part2.sh
+
+==========================================================================================================================================================================
+Download models - You can download them while installing with a new terminal window
+
+Open a new terminal
+
+chmod +x download.sh
+./download.sh
+
+
+chmod +x downloadupscale.sh
+./downloadupscale.sh
+
+=========================================================================================================================================================================
+
+If you ever need to restart script
+
+chmod +x Part3.sh
+./Part3.sh
+
+===================================================
+To watch gpu usage - watch -n 1 nvidia-smi
+
+For Vast to Delete Items - rm -r ~/.local/share/Trash 
+
+===================================================
+
+Samples
+
+masterpiece, best quality, a (Token), in white shirt, portrait, looking at viewer, simple background --w 1024 --h 1024 --s 20 --l 3.5
+masterpiece, best quality, a (Token), in white shirt, portrait, looking at viewer, simple background --w 1024 --h 1024 --s 20 --d 42 --l 3.5
+Anime illustration portrait of ohwx woman, forest with lake in the background, high quality, beautiful face, action pose, clear focus, detailed and fantasy setting --w 1024 --h 1024 --s 20 --l 3.5
+High res closeup portrait photo of ohwx woman dressed as Harley Quinn, with full clown makeup, f /2.8, Canon, 85mm,cinematic, high quality, skin texture, looking at the camera --w 1024 --h 1024 --s 20 --l 3.5
+Ohwx woman, anime hero, vivid colors, cell shading, portrait  --w 1024 --h 1024 --s 20 --l 3.5

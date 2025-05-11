@@ -1,0 +1,54 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+accelerate==0.33.0
+aiofiles==23.2.1
+altair==4.2.2
+bitsandbytes==0.44.0
+dadaptation==3.2
+diffusers[torch]==0.32.2
+easygui==0.98.3
+einops==0.7.0
+fairscale==0.4.13
+ftfy==6.1.1
+gradio>=5.23.1
+hf_transfer
+hf_xet
+huggingface-hub==0.29.3
+imagesize==1.4.1
+invisible-watermark==0.2.0
+ipywidgets
+lion-pytorch==0.0.6
+lycoris_lora==3.1.1.post1
+numpy<=2.0
+omegaconf==2.3.0
+onnx==1.16.1
+open-clip-torch==2.20.0
+opencv-python==4.10.0.84
+prodigy-plus-schedule-free==1.9.0
+prodigyopt==1.1.2
+protobuf==3.20.3
+pydantic==2.10.6
+pytorch-lightning==1.9.0
+pytorch-optimizer==3.5.0
+rich>=13.7.1
+safetensors==0.4.4
+schedulefree==1.4
+scipy==1.11.4
+sentencepiece==0.2.0
+tensorboard
+timm==0.6.12
+tk==0.1.0
+toml==0.10.2
+transformers==4.44.2
+voluptuous==0.13.1
+wandb==0.18.0
+
+# PyTorch, Triton, Xformers for Windows CUDA
+torch==2.7.0
+torchvision
+torchaudio
+triton-windows==3.3.0.post19
+xformers @ https://huggingface.co/RougeX/Xformers/resolve/main/xformers-0.0.30-cp310-cp310-win_amd64.whl
+
+# for kohya_ss sd-scripts library
+-e ./sd-scripts
