@@ -1,81 +1,92 @@
 #!/bin/bash
+set -e # Exit on any error
 
-# Define the directory name for the RX project
-RX_PROJECT_DIR="RX"
-# Define the parent directory where RX project will be cloned
-PARENT_INSTALL_DIR="/workspace"
+INSTALL_PARENT_DIR="/workspace"
+REPO_DIR_NAME="RX"
+INSTALL_PATH="$INSTALL_PARENT_DIR/$REPO_DIR_NAME"
 
-INSTALL_PATH="$PARENT_INSTALL_DIR/$RX_PROJECT_DIR"
+echo "🚀 Starting RX Project simplified installation (v2)..."
 
-echo "🚀 Starting RX Project installation and launch..."
+# 1. System maintenance and package installation
+echo "⚙️ Updating apt and installing system packages (python3.10-tk, psmisc, curl)..."
+sudo apt-get update -y
+sudo apt-get install -y python3.10-tk psmisc curl git # Ensure git and curl are present
 
-# Clean up previous installation if it exists
-if [ -d "$INSTALL_PATH" ]; then
-  echo "🧹 Cleaning up existing directory: $INSTALL_PATH"
-  rm -rf "$INSTALL_PATH"
-fi
-# Also clean up the old default location if it exists from previous runs of original setup.sh
-if [ -d "$PARENT_INSTALL_DIR/kohya_ss" ]; then
-  echo "🧹 Cleaning up legacy directory: $PARENT_INSTALL_DIR/kohya_ss"
-  rm -rf "$PARENT_INSTALL_DIR/kohya_ss"
-fi
-
-# Ensure the parent directory exists
-if [ ! -d "$PARENT_INSTALL_DIR" ]; then
-  echo "🛠️ Parent directory $PARENT_INSTALL_DIR does not exist. Creating it..."
-  mkdir -p "$PARENT_INSTALL_DIR"
-  if [ $? -ne 0 ]; then
-    echo "❌ ERROR: Failed to create parent directory $PARENT_INSTALL_DIR. Aborting."
-    exit 1
-  fi
+# 2. Clean up previous installation & Clone repository
+echo "🧹 Cleaning up existing directory: $INSTALL_PATH (if any)..."
+rm -rf "$INSTALL_PATH"
+if [ -d "$INSTALL_PARENT_DIR/kohya_ss" ]; then
+  echo "🧹 Cleaning up legacy directory: $INSTALL_PARENT_DIR/kohya_ss"
+  rm -rf "$INSTALL_PARENT_DIR/kohya_ss"
 fi
 
-cd "$PARENT_INSTALL_DIR" || { echo "❌ ERROR: Failed to change to directory $PARENT_INSTALL_DIR. Aborting."; exit 1; }
-
-echo "Cloning EClipXAi/RX repository into $INSTALL_PATH..."
-git clone https://github.com/EClipXAi/RX.git "$RX_PROJECT_DIR"
-if [ $? -ne 0 ]; then
-  echo "❌ ERROR: Failed to clone repository. Aborting."
-  exit 1
-fi
-
-cd "$RX_PROJECT_DIR" || { echo "❌ ERROR: Failed to change to directory $INSTALL_PATH. Aborting."; exit 1; }
-
+cd "$INSTALL_PARENT_DIR" || { echo "❌ ERROR: Failed to change to $INSTALL_PARENT_DIR. Aborting."; exit 1; }
+echo "Cloning EClipXAi/RX repository into $REPO_DIR_NAME..."
+git clone https://github.com/EClipXAi/RX.git "$REPO_DIR_NAME"
+cd "$INSTALL_PATH" || { echo "❌ ERROR: Failed to change to $INSTALL_PATH. Aborting."; exit 1; }
 echo "🔍 Current directory: $(pwd)"
-echo "⚙️  Making setup.sh and gui.sh executable..."
-chmod +x setup.sh
-chmod +x gui.sh # Ensured gui.sh is executable
-if [ $? -ne 0 ]; then
-  echo "❌ ERROR: Failed to make setup.sh or gui.sh executable. Aborting."
-  exit 1
-fi
 
-# Run setup.sh, explicitly telling it to use the current directory for installation.
-echo "🏃 Running setup.sh --dir=\"$PWD\" (this may take several minutes)..."
-./setup.sh --dir="$PWD"
+# 3. Create and activate Python virtual environment
+echo "🐍 Creating Python virtual environment in $INSTALL_PATH/venv..."
+python3 -m venv venv
+echo " sourcing venv/bin/activate ..."
+source venv/bin/activate
+echo "✅ Virtual environment activated for this script session."
 
-if [ $? -ne 0 ]; then
-  echo "❌ ERROR: setup.sh reported an error. Please check its output above."
-  echo "    The virtual environment might not have been created correctly in $INSTALL_PATH/venv"
-  exit 1
-fi
+# 4. Install/Upgrade pip, setuptools, wheel
+echo "📦 Installing/upgrading pip, setuptools, wheel in venv..."
+pip install --upgrade pip setuptools wheel
 
-echo "✅ RX Project setup script finished successfully."
-
-echo "🔍 Verifying venv directory structure in $INSTALL_PATH/venv..."
-ls -la "$INSTALL_PATH/venv"
-echo "🔍 Verifying venv/bin directory structure in $INSTALL_PATH/venv/bin..."
-ls -la "$INSTALL_PATH/venv/bin"
-echo "🔍 Checking for activate script: $INSTALL_PATH/venv/bin/activate"
-if [ -f "$INSTALL_PATH/venv/bin/activate" ]; then
-    echo "✅ Activation script found: $INSTALL_PATH/venv/bin/activate"
+# 5. Install Python dependencies
+REQUIREMENTS_FILE="requirements_linux.txt" # Default
+if [[ -n "${RUNPOD_POD_ID}" || -n "${RUNPOD_API_KEY}" ]]; then
+  echo "💡 RunPod environment detected. Attempting to use requirements_runpod.txt"
+  if [ -f "requirements_runpod.txt" ]; then
+    REQUIREMENTS_FILE="requirements_runpod.txt"
+  else
+    echo "⚠️ WARNING: requirements_runpod.txt not found. Falling back to requirements_linux.txt"
+  fi
 else
-    echo "❌ ERROR: Activation script NOT found: $INSTALL_PATH/venv/bin/activate"
+  echo "💡 Non-RunPod Linux environment assumed. Using requirements_linux.txt"
 fi
+echo "📦 Installing Python dependencies from $REQUIREMENTS_FILE..."
+pip install -r "$REQUIREMENTS_FILE"
 
-echo "   Virtual environment should be in $INSTALL_PATH/venv"
-echo "🚀 To launch the application, navigate to $INSTALL_PATH and run ./gui.sh"
-echo "   Example:"
+# 6. Make core scripts executable
+echo "🔧 Making setup.sh and gui.sh executable..."
+chmod +x setup.sh
+chmod +x gui.sh
+
+# 7. Run setup.sh with --no-git-update (-n)
+# This should use the venv we created. It may configure accelerate and check packages.
+echo "🏃 Running ./setup.sh -n (skipping git updates, may configure accelerate)..."
+./setup.sh -n
+
+echo "✅ RX Project setup steps completed via one-click script."
+
+# 8. Diagnostic: Verify venv (after setup.sh might have interacted with it)
+echo "🔍 Verifying venv state post setup.sh execution..."
+if [ -d "$INSTALL_PATH/venv/bin" ]; then
+    echo "✅ venv/bin directory exists."
+    ls -la "$INSTALL_PATH/venv/bin"
+    if [ -f "$INSTALL_PATH/venv/bin/activate" ]; then
+        echo "✅ Activation script found: $INSTALL_PATH/venv/bin/activate"
+    else
+        echo "❌ ERROR: Activation script NOT found: $INSTALL_PATH/venv/bin/activate"
+    fi
+else
+    echo "❌ ERROR: venv/bin directory NOT found!"
+fi
+echo "🐍 Python version in venv (expected): $(venv/bin/python --version)"
+echo "🐍 pip version in venv (expected): $(venv/bin/pip --version)"
+echo "🐍 which python (after source): $(which python)"
+
+echo "🚀 Launching GUI with --share..."
+echo "   If this step hangs or fails, try running it manually after script finishes:"
 echo "   cd $INSTALL_PATH"
-echo "   ./gui.sh"
-echo "   For public URL (if on RunPod and supported by gui.sh): ./gui.sh --share"
+echo "   source venv/bin/activate"
+echo "   ./gui.sh --share"
+
+./gui.sh --share
+
+echo "🏁 install_rx_linux_oneclick.sh finished."
